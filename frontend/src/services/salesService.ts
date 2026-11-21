@@ -43,3 +43,27 @@ export function getRevenueByCategory() {
     revenue,
   })).sort((first, second) => second.revenue - first.revenue);
 }
+
+export function getRevenueByMonth() {
+  const monthByOrder = new Map<string, string>();
+
+  for (const order of getOrders()) {
+    if (order.order_status === 'delivered' && order.order_purchase_timestamp) {
+      const month = order.order_purchase_timestamp.slice(0, 7);
+      monthByOrder.set(order.order_id, month);
+    }
+  }
+
+  const totalsByMonth = new Map<string, number>();
+
+  for (const item of getOrderItems()) {
+    const month = monthByOrder.get(item.order_id);
+
+    if (month) {
+      totalsByMonth.set(month, (totalsByMonth.get(month) ?? 0) + item.price);
+    }
+  }
+
+  return Array.from(totalsByMonth, ([month, revenue]) => ({ month, revenue }))
+    .sort((first, second) => first.month.localeCompare(second.month));
+}
