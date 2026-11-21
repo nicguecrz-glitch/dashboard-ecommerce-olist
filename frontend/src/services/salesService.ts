@@ -1,4 +1,4 @@
-import { getOrderItems, getOrders } from './dataService';
+import { getOrderItems, getOrders, getProducts } from './dataService';
 
 export function getProductRevenue(): number {
   const deliveredOrderIds = new Set(
@@ -10,4 +10,36 @@ export function getProductRevenue(): number {
   return getOrderItems()
     .filter((item) => deliveredOrderIds.has(item.order_id))
     .reduce((total, item) => total + item.price, 0);
+}
+
+export function getRevenueByCategory() {
+  const deliveredOrderIds = new Set(
+    getOrders()
+      .filter((order) => order.order_status === 'delivered')
+      .map((order) => order.order_id),
+  );
+
+  const categoriesByProduct = new Map(
+    getProducts().map((product) => [
+      product.product_id,
+      product.product_category_name,
+    ] as const),
+  );
+
+  const totalsByCategory = new Map<string, number>();
+
+  for (const item of getOrderItems()) {
+    if (!deliveredOrderIds.has(item.order_id)) {
+      continue;
+    }
+
+    const category = categoriesByProduct.get(item.product_id) ?? 'Sin categoría';
+    const currentTotal = totalsByCategory.get(category) ?? 0;
+    totalsByCategory.set(category, currentTotal + item.price);
+  }
+
+  return Array.from(totalsByCategory, ([category, revenue]) => ({
+    category,
+    revenue,
+  })).sort((first, second) => second.revenue - first.revenue);
 }
