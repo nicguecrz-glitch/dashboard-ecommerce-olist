@@ -34,3 +34,16 @@ export function getAverageDeliveryDays(): number | null {
 
   return deliveryCount > 0 ? totalDays / deliveryCount : null;
 }
+
+export function getOrdersByStatus() {
+  const countsByStatus = new Map<string, number>();
+
+  for (const order of getOrders()) {
+    const status = order.order_status;
+    const count = countsByStatus.get(status) ?? 0;
+    countsByStatus.set(status, count + 1);
+  }
+
+  return Array.from(countsByStatus, ([status, count]) => ({ status, count }))
+    .sort((first, second) => second.count - first.count);
+}
