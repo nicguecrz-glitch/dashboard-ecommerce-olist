@@ -33,6 +33,24 @@ export default function DashboardFilters({
             </Grid>
 
             {/*Estado de Brazil*/}
+            <Grid size = {{xs:12, sm: 4}}>
+                <FormControl fullWidth>
+                    <InputLabel>Estado de Brazil</InputLabel>
+                    <Select
+                        value= {state}
+                        label= "Estado de Brasil"
+                        onChange= {(e) => setState(e.target.value)}
+                    >
+                        <MenuItem value= "all">Todos los estados</MenuItem>
+                        <MenuItem value= "SP">São Paulo</MenuItem>
+                        <MenuItem value= "RJ">Rio de Janeiro</MenuItem>
+                        <MenuItem value= "Mg">Minas Gerais</MenuItem>
+
+                    </Select>
+
+                </FormControl>
+
+            </Grid>
         </Grid>
     );
 }
