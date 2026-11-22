@@ -1,13 +1,11 @@
-import { Box, Container, Grid, Paper, Typography } from '@mui/material';
+import Header from './components/Header';
+import { Container, Grid, Paper, Typography } from '@mui/material';
 
 export default function Dashboard() {
     return (
         <>
-            <Box component="header" sx={{ bgcolor: '#063750', color: 'white', p: 2 }}>
-                <Typography component="h1" variant="h5" sx={{ color: '#fff' }}>
-                    OLIST | Sales Dashboard
-                </Typography>
-            </Box>
+            {/*Header*/}
+            <Header/>
 
             <Container component="main" maxWidth="lg" sx={{ py: 3 }}>
                 <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
