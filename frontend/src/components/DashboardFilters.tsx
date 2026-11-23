@@ -1,50 +1,100 @@
 import { Grid, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-
+import { getProducts } from '../services/dataService';
+import { getCustomers } from '../services/dataService';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import type { Dayjs } from 'dayjs';
 
 interface DashboardFiltersProps {
-    date: string;
-    setDate: (value: string) => void;
+    startDate: Dayjs | null;
+    setStartDate: (value: Dayjs | null) => void;
+    endDate: Dayjs | null;
+    setEndDate: (value: Dayjs | null) => void;
     state: string;
     setState: (value: string) => void;
     category: string;
     setCategory: (value: string) => void;
-
 }
 
 export default function DashboardFilters({
-    date, setDate, state, setState, category, setCategory
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    state,
+    setState,
+    category,
+    setCategory
 }: DashboardFiltersProps) {
+
+    const categories = Array.from(
+        new Set(
+            getProducts()
+                .map((product) => product.product_category_name)
+                .filter((category): category is string => Boolean(category))
+        )
+    ).sort();
+
+
+    const states = Array.from(
+        new Set(
+            getCustomers()
+                .map((customer) => customer.customer_state)
+                .filter((state): state is string => Boolean(state))
+        )
+    ).sort();
+
     return (
         <Grid container spacing={2}>
-            {/*Fecha de compra*/}
+            {/*Rango de fechas*/}
             <Grid size={{ xs: 12, sm: 4 }}>
-                <FormControl fullWidth>
-                    <InputLabel>Fecha de Compra</InputLabel>
-                    <Select
-                        value={date}
-                        label="Fecha de compra"
-                        onChange={(e) => setDate(e.target.value)}>
-                        <MenuItem value="all">Todas las fechas</MenuItem>
-                        <MenuItem value="30">Últimos 30 días</MenuItem>
-                        <MenuItem value="90">Últimos 90 días</MenuItem>
-                    </Select>
-                </FormControl>
-
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                        label="Fecha inicial"
+                        value={startDate}
+                        onChange={setStartDate}
+                        format="DD/MM/YYYY"
+                        maxDate={endDate ?? undefined}
+                        slotProps={{
+                            textField: { fullWidth: true }
+                        }}
+                    />
+                </LocalizationProvider>
             </Grid>
 
-            {/*Estado de Brazil*/}
+            <Grid size={{ xs: 12, sm: 4 }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                        label="Fecha final"
+                        value={endDate}
+                        onChange={setEndDate}
+                        format="DD/MM/YYYY"
+                        minDate={startDate ?? undefined}
+                        slotProps={{
+                            textField: { fullWidth: true }
+                        }}
+                    />
+                </LocalizationProvider>
+            </Grid>
+
+            {/*Estado de Brasil*/}
             <Grid size={{ xs: 12, sm: 4 }}>
                 <FormControl fullWidth>
-                    <InputLabel>Estado de Brazil</InputLabel>
+                    <InputLabel>Estado de Brasil</InputLabel>
                     <Select
                         value={state}
                         label="Estado de Brasil"
                         onChange={(e) => setState(e.target.value)}
                     >
+
                         <MenuItem value="all">Todos los estados</MenuItem>
-                        <MenuItem value="SP">São Paulo</MenuItem>
-                        <MenuItem value="RJ">Rio de Janeiro</MenuItem>
-                        <MenuItem value="Mg">Minas Gerais</MenuItem>
+
+                        {states.map((state) => (
+                            <MenuItem key={state} value={state}>
+                                {state}
+                            </MenuItem>
+                        ))}
 
                     </Select>
 
@@ -61,13 +111,14 @@ export default function DashboardFilters({
                         label="Categoría"
                         onChange={(e) => setCategory(e.target.value)}
                     >
+
                         <MenuItem value="all">Todas las categorías</MenuItem>
-                        <MenuItem value="beleza_saude">
-                            Belleza y salud
-                        </MenuItem>
-                        <MenuItem value="informatica_acessorios">
-                            Informática y accesorios
-                        </MenuItem>
+
+                        {categories.map((category) => (
+                            <MenuItem key={category} value={category}>
+                                {category.replace(/_/g, ' ')}
+                            </MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
             </Grid>

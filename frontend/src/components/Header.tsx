@@ -24,7 +24,7 @@ export default function Header() {
         variant="body2"
         sx={{ mt: 1, color: '#dce8ed' }}
       >
-        Análisis de ventas, pedidos y comportamiento de clientes
+        Análisis de ventas, pedidos y comportamiento de clientes.
       </Typography>
     </Box>
   );
