@@ -1,8 +1,7 @@
 
 import {
   getOrderItems,
-  getOrders,
-  getProducts
+  getOrders
 } from './dataService';
 
 import type { Order, OrderItem } from '../types';
