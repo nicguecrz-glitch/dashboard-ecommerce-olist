@@ -1,25 +1,26 @@
 
-import Header from './components/Header';
-import DashboardFilters from './components/DashboardFilters';
 import { Container, Grid, Paper, Typography } from '@mui/material';
-import { useState } from 'react';
 import type { Dayjs } from 'dayjs';
+import { useState } from 'react';
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import DashboardFilters from './components/DashboardFilters';
+import Header from './components/Header';
 
 import {
-    getOrders,
     getCustomers,
-    getProducts,
     getOrderItems,
+    getOrders,
+    getProducts,
     getReviews
 } from './services/dataService';
 
 import {
-    getOrderSummary,
-    getAverageDeliveryDays
+    getAverageDeliveryDays,
+    getOrderSummary
 } from './services/orderService';
 
-import { getProductRevenue } from './services/salesService';
 import { getAverageReviewScore } from './services/reviewService';
+import { getProductRevenue } from './services/salesService';
 
 export default function Dashboard() {
     // Estados de los filtros
@@ -135,6 +136,28 @@ export default function Dashboard() {
 
     const averageReview = getAverageReviewScore(filteredReviews);
 
+    const deliveredOrderIds = new Set(
+        filteredOrders
+            .filter((order) => order.order_status === 'delivered')
+            .map((order) => order.order_id)
+    );
+
+    const revenueByCategory = new Map<string, number>();
+
+    for (const item of filteredItems) {
+        if (!deliveredOrderIds.has(item.order_id)) continue;
+
+        const categoryName = productCategoryMap.get(item.product_id) || 'Sin categoría';
+        const currentRevenue = revenueByCategory.get(categoryName) ?? 0;
+
+        revenueByCategory.set(categoryName, currentRevenue + item.price);
+    }
+
+    const categoryChartData = Array.from(
+        revenueByCategory,
+        ([categoryName, revenue]) => ({ categoryName, revenue })
+    ).sort((a, b) => b.revenue - a.revenue);
+
     return (
         <>
             {/* Header */}
@@ -224,6 +247,20 @@ export default function Dashboard() {
                                 <Typography component="h2" variant="h6">
                                     {title}
                                 </Typography>
+                                {title === 'Ingresos por categoría' && (
+                                    categoryChartData.length > 0 ? (
+                                        <ResponsiveContainer width="100%" height={240}>
+                                            <BarChart data={categoryChartData}>
+                                                <XAxis dataKey="categoryName" tick={false} />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Bar dataKey="revenue" name="Ingresos (BRL)" fill="#07364d" />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    ) : (
+                                        <Typography sx={{ mt: 2 }}>Sin ingresos para estos filtros</Typography>
+                                    )
+                                )}
                             </Paper>
                         </Grid>
                     ))}
