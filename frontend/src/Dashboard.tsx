@@ -3,7 +3,8 @@ import { Container, Grid, Paper, Typography } from '@mui/material';
 import type { Dayjs } from 'dayjs';
 import { useState } from 'react';
 import {
-    Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis
+    Bar, BarChart, Legend, Line, LineChart, Pie, PieChart,
+    ResponsiveContainer, Tooltip, XAxis, YAxis
 } from 'recharts';
 import DashboardFilters from './components/DashboardFilters';
 import Header from './components/Header';
@@ -184,6 +185,41 @@ export default function Dashboard() {
         ([month, revenue]) => ({ month, revenue })
     ).sort((a, b) => a.month.localeCompare(b.month));
 
+    const statusLabels: Record<string, string> = {
+        delivered: 'Entregado',
+        shipped: 'Enviado',
+        canceled: 'Cancelado',
+        unavailable: 'No disponible',
+        invoiced: 'Facturado',
+        processing: 'En proceso',
+        approved: 'Aprobado',
+        created: 'Creado',
+    };
+
+    const statusColors: Record<string, string> = {
+        delivered: '#0877b5',
+        shipped: '#3dbab5',
+        canceled: '#ee6555',
+        unavailable: '#aebbd1',
+        invoiced: '#f4ad32',
+        processing: '#7a57c2',
+        approved: '#4e8f46',
+        created: '#95654d',
+    };
+
+    const statusCounts = new Map<string, number>();
+
+    for (const order of filteredOrders) {
+        const status = order.order_status || 'unknown';
+        statusCounts.set(status, (statusCounts.get(status) ?? 0) + 1);
+    }
+
+    const statusChartData = Array.from(statusCounts, ([status, count]) => ({
+        name: statusLabels[status] ?? 'Sin estado',
+        count,
+        fill: statusColors[status] ?? '#64748b',
+    })).sort((a, b) => b.count - a.count);
+
     return (
         <>
             {/* Header */}
@@ -305,6 +341,25 @@ export default function Dashboard() {
                                         </ResponsiveContainer>
                                     ) : (
                                         <Typography sx={{ mt: 2 }}>Sin ingresos para estos filtros</Typography>
+                                    )
+                                )}
+                                {title === 'Distribución de pedidos por estado' && (
+                                    statusChartData.length > 0 ? (
+                                        <ResponsiveContainer width="100%" height={240}>
+                                            <PieChart>
+                                                <Pie
+                                                    data={statusChartData}
+                                                    dataKey="count"
+                                                    nameKey="name"
+                                                    innerRadius="45%"
+                                                    outerRadius="78%"
+                                                />
+                                                <Tooltip />
+                                                <Legend />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    ) : (
+                                        <Typography sx={{ mt: 2 }}>Sin pedidos para estos filtros</Typography>
                                     )
                                 )}
                             </Paper>
