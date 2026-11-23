@@ -1,5 +1,8 @@
 
-import { Container, Grid, Paper, Typography } from '@mui/material';
+import {
+    Container, Grid, Paper, Table, TableBody, TableCell,
+    TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography
+} from '@mui/material';
 import type { Dayjs } from 'dayjs';
 import { useState } from 'react';
 import {
@@ -135,6 +138,16 @@ export default function Dashboard() {
         filteredItems
     );
 
+    const [orderSort, setOrderSort] = useState<'date' | 'state'>('date');
+    const [ascending, setAscending] = useState(false);
+    const [orderPage, setOrderPage] = useState(0);
+
+    function changeOrderSort(column: 'date' | 'state') {
+        setAscending(orderSort === column ? !ascending : column === 'state');
+        setOrderSort(column);
+        setOrderPage(0);
+    }
+
     const averageDelivery = getAverageDeliveryDays(filteredOrders);
 
     const averageReview = getAverageReviewScore(filteredReviews);
@@ -219,6 +232,36 @@ export default function Dashboard() {
         count,
         fill: statusColors[status] ?? '#64748b',
     })).sort((a, b) => b.count - a.count);
+
+    const orderValues = new Map<string, number>();
+
+    for (const item of filteredItems) {
+        const currentValue = orderValues.get(item.order_id) ?? 0;
+        orderValues.set(item.order_id, currentValue + item.price);
+    }
+
+    const sortedOrders = [...filteredOrders].sort((a, b) => {
+        const byDate = a.order_purchase_timestamp.localeCompare(b.order_purchase_timestamp);
+
+        if (orderSort === 'date') {
+            return ascending ? byDate : -byDate;
+        }
+
+        const stateA = customerStateMap.get(a.customer_id) ?? '';
+        const stateB = customerStateMap.get(b.customer_id) ?? '';
+        const byState = stateA.localeCompare(stateB);
+
+        return (ascending ? byState : -byState) || -byDate;
+    });
+
+    const pageCount = Math.ceil(sortedOrders.length / 10);
+    const currentPage = Math.min(orderPage, Math.max(0, pageCount - 1));
+    const recentOrders = sortedOrders.slice(currentPage * 10, (currentPage + 1) * 10);
+
+    const orderCurrency = new Intl.NumberFormat('es-ES', {
+        style: 'currency',
+        currency: 'BRL',
+    });
 
     return (
         <>
@@ -309,6 +352,84 @@ export default function Dashboard() {
                                 <Typography component="h2" variant="h6">
                                     {title}
                                 </Typography>
+                                {title === 'Detalle de pedidos' && (
+                                    recentOrders.length === 0 ? (
+                                        <Typography sx={{ mt: 2 }}>
+                                            Sin pedidos para estos filtros
+                                        </Typography>
+                                    ) : (
+                                        <TableContainer sx={{ mt: 1, maxHeight: 280 }}>
+                                            <Table size="small" stickyHeader aria-label="Detalle de pedidos">
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell>Pedido</TableCell>
+                                                        <TableCell sortDirection={orderSort === 'date' ? (ascending ? 'asc' : 'desc') : false}>
+                                                            <TableSortLabel
+                                                                active={orderSort === 'date'}
+                                                                direction={ascending ? 'asc' : 'desc'}
+                                                                onClick={() => changeOrderSort('date')}
+                                                            >
+                                                                Fecha
+                                                            </TableSortLabel>
+                                                        </TableCell>
+                                                        <TableCell sortDirection={orderSort === 'state' ? (ascending ? 'asc' : 'desc') : false}>
+                                                            <TableSortLabel
+                                                                active={orderSort === 'state'}
+                                                                direction={ascending ? 'asc' : 'desc'}
+                                                                onClick={() => changeOrderSort('state')}
+                                                            >
+                                                                Estado BR
+                                                            </TableSortLabel>
+                                                        </TableCell>
+                                                        <TableCell>Situación</TableCell>
+                                                        <TableCell align="right">Valor</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {recentOrders.map((order) => {
+                                                        const value = orderValues.get(order.order_id);
+
+                                                        return (
+                                                            <TableRow key={order.order_id}>
+                                                                <TableCell title={order.order_id}>
+                                                                    {order.order_id.slice(0, 8)}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {order.order_purchase_timestamp
+                                                                        .slice(0, 10)
+                                                                        .split('-')
+                                                                        .reverse()
+                                                                        .join('/')}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {customerStateMap.get(order.customer_id) ?? '—'}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {statusLabels[order.order_status] ?? order.order_status}
+                                                                </TableCell>
+                                                                <TableCell align="right">
+                                                                    {value === undefined ? '—' : orderCurrency.format(value)}
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        );
+                                                    })}
+                                                </TableBody>
+                                            </Table>
+                                            <TablePagination
+                                                component="div"
+                                                count={sortedOrders.length}
+                                                page={currentPage}
+                                                rowsPerPage={10}
+                                                rowsPerPageOptions={[10]}
+                                                onPageChange={(_, nextPage) => setOrderPage(nextPage)}
+                                                labelDisplayedRows={({ from, to, count }) =>
+                                                    `${from}–${to} de ${count.toLocaleString('es-EC')}`
+                                                }
+                                            />
+                                        </TableContainer>
+                                    )
+                                )}
+
                                 {title === 'Ingresos por categoría' && (
                                     categoryChartData.length > 0 ? (
                                         <ResponsiveContainer width="100%" height={240}>
