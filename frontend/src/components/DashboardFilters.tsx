@@ -5,6 +5,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 interface DashboardFiltersProps {
     startDate: Dayjs | null;
@@ -55,7 +56,8 @@ export default function DashboardFilters({
                         value={startDate}
                         onChange={setStartDate}
                         format="DD/MM/YYYY"
-                        maxDate={endDate ?? undefined}
+                        minDate={dayjs('2016-01-01')}
+                        maxDate={endDate ?? dayjs('2018-12-31')}
                         slotProps={{
                             textField: { fullWidth: true }
                         }}
@@ -70,7 +72,8 @@ export default function DashboardFilters({
                         value={endDate}
                         onChange={setEndDate}
                         format="DD/MM/YYYY"
-                        minDate={startDate ?? undefined}
+                        minDate={startDate ?? dayjs('2016-01-01')}
+                        maxDate={dayjs('2018-12-31')}
                         slotProps={{
                             textField: { fullWidth: true }
                         }}
