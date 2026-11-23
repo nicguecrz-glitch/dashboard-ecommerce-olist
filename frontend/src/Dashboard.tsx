@@ -1,7 +1,14 @@
+
 import Header from './components/Header';
+import DashboardFilters from './components/DashboardFilters';
 import { Container, Grid, Paper, Typography } from '@mui/material';
+import { useState } from 'react';
 
 export default function Dashboard() {
+    const [date, setDate] = useState('all');
+    const [state, setState] = useState('all');
+    const [category, setCategory] = useState('all');
+
     return (
         <>
             {/*Header*/}
@@ -12,13 +19,16 @@ export default function Dashboard() {
                     Filtros
                 </Typography>
 
-                <Grid container spacing={2} sx={{ mb: 3 }}>
-                    {['Fecha de compra', 'Estado de Brasil', 'Categoría'].map((label) => (
-                        <Grid key={label} size={{ xs: 12, sm: 4 }}>
-                            <Paper variant="outlined" sx={{ p: 2 }}>{label}</Paper>
-                        </Grid>
-                    ))}
-                </Grid>
+                <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+                    <DashboardFilters
+                        date={date}
+                        setDate={setDate}
+                        state={state}
+                        setState={setState}
+                        category={category}
+                        setCategory={setCategory}
+                    />
+                </Paper>
 
                 <Grid container spacing={2} sx={{ mb: 3 }}>
                     {['Pedidos', 'Ingresos', 'Tiempo promedio', 'Calificación'].map((label) => (
