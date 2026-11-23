@@ -24,32 +24,52 @@ export default function DashboardFilters({
                         value={date}
                         label="Fecha de compra"
                         onChange={(e) => setDate(e.target.value)}>
-                        <MenuItem value= "all">Todas las fechas</MenuItem>
-                        <MenuItem value= "30">Últimos 30 días</MenuItem>
-                        <MenuItem value= "90">Últimos 90 días</MenuItem>
+                        <MenuItem value="all">Todas las fechas</MenuItem>
+                        <MenuItem value="30">Últimos 30 días</MenuItem>
+                        <MenuItem value="90">Últimos 90 días</MenuItem>
                     </Select>
                 </FormControl>
 
             </Grid>
 
             {/*Estado de Brazil*/}
-            <Grid size = {{xs:12, sm: 4}}>
+            <Grid size={{ xs: 12, sm: 4 }}>
                 <FormControl fullWidth>
                     <InputLabel>Estado de Brazil</InputLabel>
                     <Select
-                        value= {state}
-                        label= "Estado de Brasil"
-                        onChange= {(e) => setState(e.target.value)}
+                        value={state}
+                        label="Estado de Brasil"
+                        onChange={(e) => setState(e.target.value)}
                     >
-                        <MenuItem value= "all">Todos los estados</MenuItem>
-                        <MenuItem value= "SP">São Paulo</MenuItem>
-                        <MenuItem value= "RJ">Rio de Janeiro</MenuItem>
-                        <MenuItem value= "Mg">Minas Gerais</MenuItem>
+                        <MenuItem value="all">Todos los estados</MenuItem>
+                        <MenuItem value="SP">São Paulo</MenuItem>
+                        <MenuItem value="RJ">Rio de Janeiro</MenuItem>
+                        <MenuItem value="Mg">Minas Gerais</MenuItem>
 
                     </Select>
 
                 </FormControl>
 
+            </Grid>
+
+            {/*Categorias*/}
+            <Grid size={{ xs: 12, sm: 4 }}>
+                <FormControl fullWidth>
+                    <InputLabel>Categoría</InputLabel>
+                    <Select
+                        value={category}
+                        label="Categoría"
+                        onChange={(e) => setCategory(e.target.value)}
+                    >
+                        <MenuItem value="all">Todas las categorías</MenuItem>
+                        <MenuItem value="beleza_saude">
+                            Belleza y salud
+                        </MenuItem>
+                        <MenuItem value="informatica_acessorios">
+                            Informática y accesorios
+                        </MenuItem>
+                    </Select>
+                </FormControl>
             </Grid>
         </Grid>
     );
