@@ -2,7 +2,9 @@
 import { Container, Grid, Paper, Typography } from '@mui/material';
 import type { Dayjs } from 'dayjs';
 import { useState } from 'react';
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+    Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis
+} from 'recharts';
 import DashboardFilters from './components/DashboardFilters';
 import Header from './components/Header';
 
@@ -158,6 +160,30 @@ export default function Dashboard() {
         ([categoryName, revenue]) => ({ categoryName, revenue })
     ).sort((a, b) => b.revenue - a.revenue);
 
+
+    const purchaseMonthByOrder = new Map(
+        filteredOrders
+            .filter((order) => deliveredOrderIds.has(order.order_id))
+            .map((order) => [
+                order.order_id,
+                order.order_purchase_timestamp.slice(0, 7),
+            ] as const)
+    );
+
+    const revenueByMonth = new Map<string, number>();
+
+    for (const item of filteredItems) {
+        const month = purchaseMonthByOrder.get(item.order_id);
+        if (!month) continue;
+
+        revenueByMonth.set(month, (revenueByMonth.get(month) ?? 0) + item.price);
+    }
+
+    const monthlyChartData = Array.from(
+        revenueByMonth,
+        ([month, revenue]) => ({ month, revenue })
+    ).sort((a, b) => a.month.localeCompare(b.month));
+
     return (
         <>
             {/* Header */}
@@ -256,6 +282,26 @@ export default function Dashboard() {
                                                 <Tooltip />
                                                 <Bar dataKey="revenue" name="Ingresos (BRL)" fill="#07364d" />
                                             </BarChart>
+                                        </ResponsiveContainer>
+                                    ) : (
+                                        <Typography sx={{ mt: 2 }}>Sin ingresos para estos filtros</Typography>
+                                    )
+                                )}
+
+                                {title === 'Evolución mensual de ingresos' && (
+                                    monthlyChartData.length > 0 ? (
+                                        <ResponsiveContainer width="100%" height={240}>
+                                            <LineChart data={monthlyChartData}>
+                                                <XAxis dataKey="month" minTickGap={24} />
+                                                <YAxis width={80} />
+                                                <Tooltip />
+                                                <Line
+                                                    dataKey="revenue"
+                                                    name="Ingresos (BRL)"
+                                                    stroke="#07364d"
+                                                    strokeWidth={2}
+                                                />
+                                            </LineChart>
                                         </ResponsiveContainer>
                                     ) : (
                                         <Typography sx={{ mt: 2 }}>Sin ingresos para estos filtros</Typography>
