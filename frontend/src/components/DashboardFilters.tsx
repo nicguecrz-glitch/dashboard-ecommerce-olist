@@ -1,11 +1,29 @@
-import { Grid, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { getProducts } from '../services/dataService';
-import { getCustomers } from '../services/dataService';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { esES } from '@mui/x-date-pickers/locales';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
+import 'dayjs/locale/es';
+import { getCustomers, getProducts } from '../services/dataService';
+
+const filterFont = '"DM Sans Variable", system-ui, sans-serif';
+
+const calendarPaperSx = {
+    fontFamily: filterFont,
+    borderRadius: '16px',
+    border: '1px solid #dce4ed',
+    boxShadow: '0 12px 32px rgb(23 32 51 / 14%)',
+    overflow: 'hidden',
+    '& .MuiTypography-root, & button': {
+        fontFamily: filterFont,
+    },
+    '& button.Mui-selected, & button.Mui-selected:hover': {
+        backgroundColor: '#0f766e',
+        color: '#fff',
+    },
+};
 
 interface DashboardFiltersProps {
     startDate: Dayjs | null;
@@ -47,10 +65,44 @@ export default function DashboardFilters({
     ).sort();
 
     return (
-        <Grid container spacing={2}>
-            {/*Rango de fechas*/}
-            <Grid size={{ xs: 12, sm: 4 }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Grid
+            container
+            spacing={2}
+            sx={{
+                fontFamily: filterFont,
+                '& .MuiInputLabel-root, & .MuiInputBase-root, & .MuiPickersInputBase-root, & .MuiSelect-select': {
+                    fontFamily: filterFont,
+                },
+                '& .MuiOutlinedInput-root, & .MuiPickersOutlinedInput-root': {
+                    borderRadius: '12px',
+                    bgcolor: '#f6f8fb',
+                    color: '#172033',
+                    minHeight: 52,
+                    '& fieldset, & .MuiPickersOutlinedInput-notchedOutline': {
+                        borderColor: '#dce4ed',
+                    },
+                    '&:hover fieldset, &:hover .MuiPickersOutlinedInput-notchedOutline': {
+                        borderColor: '#93b8b2',
+                    },
+                    '&.Mui-focused fieldset, &.Mui-focused .MuiPickersOutlinedInput-notchedOutline': {
+                        borderColor: '#0f766e',
+                    },
+                },
+                '& .MuiSelect-select': {
+                    textAlign: 'left',
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#0f766e',
+                },
+            }}
+        >
+            {/* Rango de fechas */}
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <LocalizationProvider
+                    dateAdapter={AdapterDayjs}
+                    adapterLocale="es"
+                    localeText={esES.components.MuiLocalizationProvider.defaultProps.localeText}
+                >
                     <DatePicker
                         label="Fecha inicial"
                         value={startDate}
@@ -59,14 +111,20 @@ export default function DashboardFilters({
                         minDate={dayjs('2016-01-01')}
                         maxDate={endDate ?? dayjs('2018-12-31')}
                         slotProps={{
-                            textField: { fullWidth: true }
+                            textField: { fullWidth: true },
+                            desktopPaper: { sx: calendarPaperSx },
+                            mobilePaper: { sx: calendarPaperSx },
                         }}
                     />
                 </LocalizationProvider>
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 4 }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <LocalizationProvider
+                    dateAdapter={AdapterDayjs}
+                    adapterLocale="es"
+                    localeText={esES.components.MuiLocalizationProvider.defaultProps.localeText}
+                >
                     <DatePicker
                         label="Fecha final"
                         value={endDate}
@@ -75,14 +133,16 @@ export default function DashboardFilters({
                         minDate={startDate ?? dayjs('2016-01-01')}
                         maxDate={dayjs('2018-12-31')}
                         slotProps={{
-                            textField: { fullWidth: true }
+                            textField: { fullWidth: true },
+                            desktopPaper: { sx: calendarPaperSx },
+                            mobilePaper: { sx: calendarPaperSx },
                         }}
                     />
                 </LocalizationProvider>
             </Grid>
 
             {/*Estado de Brasil*/}
-            <Grid size={{ xs: 12, sm: 4 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <FormControl fullWidth>
                     <InputLabel>Estado de Brasil</InputLabel>
                     <Select
@@ -106,7 +166,7 @@ export default function DashboardFilters({
             </Grid>
 
             {/*Categorias*/}
-            <Grid size={{ xs: 12, sm: 4 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <FormControl fullWidth>
                     <InputLabel>Categoría</InputLabel>
                     <Select
