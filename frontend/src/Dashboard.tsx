@@ -1,4 +1,3 @@
-
 import {
     Container, Grid, Paper, Table, TableBody, TableCell,
     TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography
@@ -10,6 +9,7 @@ import {
     ResponsiveContainer, Tooltip, XAxis, YAxis
 } from 'recharts';
 import DashboardFilters from './components/DashboardFilters';
+import FirebaseOrdersPreview from './components/FirebaseOrdersPreview';
 import Header from './components/Header';
 
 import {
@@ -263,6 +263,8 @@ export default function Dashboard() {
         currency: 'BRL',
     });
 
+    const [showFirebaseOrders, setShowFirebaseOrders] = useState(false);
+
     return (
         <>
             {/* Header */}
@@ -352,7 +354,7 @@ export default function Dashboard() {
                                 <Typography component="h2" variant="h6">
                                     {title}
                                 </Typography>
-                                {title === 'Detalle de pedidos' && (
+                                {title === 'Detalle de pedidos' && !showFirebaseOrders && (
                                     recentOrders.length === 0 ? (
                                         <Typography sx={{ mt: 2 }}>
                                             Sin pedidos para estos filtros
@@ -428,6 +430,21 @@ export default function Dashboard() {
                                             />
                                         </TableContainer>
                                     )
+                                )}
+
+                                {title === 'Detalle de pedidos' && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowFirebaseOrders(!showFirebaseOrders)}
+                                        >
+                                            {showFirebaseOrders
+                                                ? 'Ver pedidos filtrados'
+                                                : 'Ver muestra de Firebase'}
+                                        </button>
+
+                                        {showFirebaseOrders && <FirebaseOrdersPreview />}
+                                    </>
                                 )}
 
                                 {title === 'Ingresos por categoría' && (
