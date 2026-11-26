@@ -1,6 +1,5 @@
-
 import {
-    Container, Grid, Paper, Table, TableBody, TableCell,
+    Button, Container, Grid, Paper, Table, TableBody, TableCell,
     TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography
 } from '@mui/material';
 import type { Dayjs } from 'dayjs';
@@ -10,7 +9,9 @@ import {
     ResponsiveContainer, Tooltip, XAxis, YAxis
 } from 'recharts';
 import DashboardFilters from './components/DashboardFilters';
+import FirebaseOrdersPreview from './components/FirebaseOrdersPreview';
 import Header from './components/Header';
+import './Dashboard.css';
 
 import {
     getCustomers,
@@ -263,18 +264,20 @@ export default function Dashboard() {
         currency: 'BRL',
     });
 
+    const [showFirebaseOrders, setShowFirebaseOrders] = useState(false);
+
     return (
         <>
             {/* Header */}
             <Header />
 
-            <Container component="main" maxWidth="lg" sx={{ py: 3 }}>
+            <Container component="main" maxWidth="lg" className="olist-dashboard" sx={{ py: 3 }}>
                 <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
                     Filtros
                 </Typography>
 
                 {/* Filtros del dashboard */}
-                <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+                <Paper className="olist-card" variant="outlined" sx={{ p: 2, mb: 3 }}>
                     <DashboardFilters
                         startDate={startDate}
                         setStartDate={setStartDate}
@@ -292,7 +295,7 @@ export default function Dashboard() {
 
                     {/* Pedidos */}
                     <Grid size={{ xs: 6, md: 3 }}>
-                        <Paper sx={{ bgcolor: '#ffeb82', p: 2, textAlign: 'center' }}>
+                        <Paper className="olist-card olist-kpi" elevation={0} sx={{ p: 2 }}>
                             <Typography>Pedidos</Typography>
                             <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                                 {orderSummary.totalOrders.toLocaleString('es-ES')}
@@ -302,7 +305,7 @@ export default function Dashboard() {
 
                     {/* Ingresos */}
                     <Grid size={{ xs: 6, md: 3 }}>
-                        <Paper sx={{ bgcolor: '#ffeb82', p: 2, textAlign: 'center' }}>
+                        <Paper className="olist-card olist-kpi olist-kpi-revenue" elevation={0} sx={{ p: 2 }}>
                             <Typography>Ingresos</Typography>
                             <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                                 {revenue.toLocaleString('es-ES', {
@@ -315,7 +318,7 @@ export default function Dashboard() {
 
                     {/* Tiempo promedio */}
                     <Grid size={{ xs: 6, md: 3 }}>
-                        <Paper sx={{ bgcolor: '#ffeb82', p: 2, textAlign: 'center' }}>
+                        <Paper className="olist-card olist-kpi" elevation={0} sx={{ p: 2 }}>
                             <Typography>Tiempo promedio</Typography>
                             <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                                 {averageDelivery !== null
@@ -327,7 +330,7 @@ export default function Dashboard() {
 
                     {/* Calificación */}
                     <Grid size={{ xs: 6, md: 3 }}>
-                        <Paper sx={{ bgcolor: '#ffeb82', p: 2, textAlign: 'center' }}>
+                        <Paper className="olist-card olist-kpi" elevation={0} sx={{ p: 2 }}>
                             <Typography>Calificación</Typography>
                             <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                                 {averageReview !== null
@@ -348,11 +351,11 @@ export default function Dashboard() {
                         'Distribución de pedidos por estado',
                     ].map((title) => (
                         <Grid key={title} size={{ xs: 12, md: 6 }}>
-                            <Paper variant="outlined" sx={{ p: 2, minHeight: 180 }}>
+                            <Paper className="olist-card" variant="outlined" sx={{ p: 2.5, minHeight: 280 }}>
                                 <Typography component="h2" variant="h6">
                                     {title}
                                 </Typography>
-                                {title === 'Detalle de pedidos' && (
+                                {title === 'Detalle de pedidos' && !showFirebaseOrders && (
                                     recentOrders.length === 0 ? (
                                         <Typography sx={{ mt: 2 }}>
                                             Sin pedidos para estos filtros
@@ -428,6 +431,34 @@ export default function Dashboard() {
                                             />
                                         </TableContainer>
                                     )
+                                )}
+
+                                {title === 'Detalle de pedidos' && (
+                                    <>
+                                        <Button
+                                            type="button"
+                                            variant="outlined"
+                                            size="small"
+                                            onClick={() => setShowFirebaseOrders((visible) => !visible)}
+                                            sx={{
+                                                mt: 1.5,
+                                                px: 2,
+                                                borderRadius: '10px',
+                                                borderColor: '#a7ccc7',
+                                                color: '#0f766e',
+                                                bgcolor: '#f0fdfa',
+                                                textTransform: 'none',
+                                                fontWeight: 650,
+                                                '&:hover': {
+                                                    bgcolor: '#dff7f1',
+                                                    borderColor: '#0f766e',
+                                                },
+                                            }}
+                                        >
+                                            {showFirebaseOrders ? 'Ver pedidos filtrados' : 'Ver muestra de Firebase'}
+                                        </Button>
+                                        {showFirebaseOrders && <FirebaseOrdersPreview />}
+                                    </>
                                 )}
 
                                 {title === 'Ingresos por categoría' && (
