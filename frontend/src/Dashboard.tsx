@@ -397,7 +397,18 @@ export default function Dashboard() {
                     ].map((title) => (
                         <Grid key={title} size={{ xs: 12, md: 6 }}>
                             <Paper className="olist-card" variant="outlined" sx={{ p: 2.5, minHeight: 280 }}>
-                                <Typography component="h2" variant="h6">
+                                <Typography
+                                    component="h2"
+                                    variant="h6"
+                                    sx={{
+                                        color: '#07364d',
+                                        fontWeight: 800,
+                                        fontSize: '1.15rem',
+                                        mb: 2,
+                                        pb: 1,
+                                        borderBottom: '2px solid #07364d'
+                                    }}
+                                >
                                     {title}
                                 </Typography>
                                 {title === 'Detalle de pedidos' && !showFirebaseOrders && (
@@ -473,12 +484,12 @@ export default function Dashboard() {
                                                 labelDisplayedRows={({ from, to, count }) =>
                                                     `${from}–${to} de ${count.toLocaleString('es-EC')}`
                                                 }
-                                           />
+                                            />
                                         </TableContainer>
                                     )
                                 )}
- 
-                        
+
+
 
                                 {title === 'Ingresos por categoría' && (
                                     categoryChartData.length > 0 ? (
