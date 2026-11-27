@@ -3,23 +3,17 @@ import {
     TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography
 } from '@mui/material';
 import type { Dayjs } from 'dayjs';
-import { useState } from 'react';
 import {
     Bar, BarChart, Legend, Line, LineChart, Pie, PieChart,
     ResponsiveContainer, Tooltip, XAxis, YAxis
 } from 'recharts';
 import DashboardFilters from './components/DashboardFilters';
-import FirebaseOrdersPreview from './components/FirebaseOrdersPreview';
 import Header from './components/Header';
 import './Dashboard.css';
 
-import {
-    getCustomers,
-    getOrderItems,
-    getOrders,
-    getProducts,
-    getReviews
-} from './services/dataService';
+import { useEffect, useState } from 'react';
+import { getDashboardData } from './services/dataService';
+import type { DashboardData } from './services/dataService';
 
 import {
     getAverageDeliveryDays,
@@ -30,18 +24,58 @@ import { getAverageReviewScore } from './services/reviewService';
 import { getProductRevenue } from './services/salesService';
 
 export default function Dashboard() {
+    // Datos recuperados de Firebase
+    const [data, setData] = useState<DashboardData>({
+        orders: [],
+        customers: [],
+        products: [],
+        payments: [],
+        orderItems: [],
+        reviews: [],
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    // Cargar los datos una sola vez desde Firebase
+    useEffect(() => {
+        let active = true;
+
+        async function loadData() {
+            try {
+                const result = await getDashboardData();
+                if (active) setData(result);
+            } catch (err) {
+                if (active) {
+                    setError(
+                        err instanceof Error
+                            ? err.message
+                            : 'Error al recuperar los datos de Firebase'
+                    );
+                }
+            } finally {
+                if (active) setLoading(false);
+            }
+        }
+
+        loadData();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
     // Estados de los filtros
     const [startDate, setStartDate] = useState<Dayjs | null>(null);
     const [endDate, setEndDate] = useState<Dayjs | null>(null);
     const [state, setState] = useState('all');
     const [category, setCategory] = useState('all');
 
-    // Obtener datos originales
-    const orders = getOrders();
-    const customers = getCustomers();
-    const products = getProducts();
-    const orderItems = getOrderItems();
-    const reviews = getReviews();
+    // Utilizar los datos recuperados de Firebase
+    const orders = data.orders;
+    const customers = data.customers;
+    const products = data.products;
+    const orderItems = data.orderItems;
+    const reviews = data.reviews;
 
     // Relacionar clientes con sus estados
     const customerStateMap = new Map(
@@ -266,6 +300,15 @@ export default function Dashboard() {
 
     const [showFirebaseOrders, setShowFirebaseOrders] = useState(false);
 
+    // Los retornos condicionales van después de declarar todos los hooks.
+    if (loading) {
+        return <Typography sx={{ p: 3 }}>Cargando información del dashboard...</Typography>;
+    }
+
+    if (error) {
+        return <Typography color="error" sx={{ p: 3 }}>Error: {error}</Typography>;
+    }
+
     return (
         <>
             {/* Header */}
@@ -287,6 +330,8 @@ export default function Dashboard() {
                         setState={setState}
                         category={category}
                         setCategory={setCategory}
+                        customers={customers}
+                        products={products}
                     />
                 </Paper>
 
@@ -428,38 +473,12 @@ export default function Dashboard() {
                                                 labelDisplayedRows={({ from, to, count }) =>
                                                     `${from}–${to} de ${count.toLocaleString('es-EC')}`
                                                 }
-                                            />
+                                           />
                                         </TableContainer>
                                     )
                                 )}
-
-                                {title === 'Detalle de pedidos' && (
-                                    <>
-                                        <Button
-                                            type="button"
-                                            variant="outlined"
-                                            size="small"
-                                            onClick={() => setShowFirebaseOrders((visible) => !visible)}
-                                            sx={{
-                                                mt: 1.5,
-                                                px: 2,
-                                                borderRadius: '10px',
-                                                borderColor: '#a7ccc7',
-                                                color: '#0f766e',
-                                                bgcolor: '#f0fdfa',
-                                                textTransform: 'none',
-                                                fontWeight: 650,
-                                                '&:hover': {
-                                                    bgcolor: '#dff7f1',
-                                                    borderColor: '#0f766e',
-                                                },
-                                            }}
-                                        >
-                                            {showFirebaseOrders ? 'Ver pedidos filtrados' : 'Ver muestra de Firebase'}
-                                        </Button>
-                                        {showFirebaseOrders && <FirebaseOrdersPreview />}
-                                    </>
-                                )}
+ 
+                        
 
                                 {title === 'Ingresos por categoría' && (
                                     categoryChartData.length > 0 ? (

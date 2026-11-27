@@ -1,33 +1,56 @@
-
-import ordersData from "../../../data/json/olist_orders.json";
-import customersData from "../../../data/json/olist_customers.json";
-import productsData from "../../../data/json/olist_products.json";
-import paymentsData from "../../../data/json/olist_order_payments.json";
-import orderItemsData from "../../../data/json/olist_order_items.json";
-import reviewsData from "../../../data/json/olist_order_reviews.json";
+import { get, ref } from 'firebase/database';
+import { database } from '../firebase/firebase';
 
 import type {
-  Order,
-  Customer,
-  Product,
-  Payment,
-  OrderItem,
-  Review
-} from "../types";
+    Order,
+    Customer,
+    Product,
+    Payment,
+    OrderItem,
+    Review
+} from '../types';
 
-export const getOrders = (): Order[] => ordersData as Order[];
+export interface DashboardData {
+    orders: Order[];
+    customers: Customer[];
+    products: Product[];
+    payments: Payment[];
+    orderItems: OrderItem[];
+    reviews: Review[];
+}
 
-export const getCustomers = (): Customer[] =>
-  customersData as Customer[];
+function convertSnapshot<T>(value: unknown): T[] {
+    if (Array.isArray(value)) {
+        return value as T[];
+    }
 
-export const getProducts = (): Product[] =>
-  productsData as Product[];
+    if (!value || typeof value !== 'object') {
+        return [];
+    }
 
-export const getPayments = (): Payment[] =>
-  paymentsData as Payment[];
+    return Object.values(value) as T[];
+}
 
-export const getOrderItems = (): OrderItem[] =>
-  orderItemsData as OrderItem[];
+export async function getDashboardData(): Promise<DashboardData> {
+    const paths = [
+        'olist_orders',
+        'olist_customers',
+        'olist_products',
+        'olist_order_payments',
+        'olist_order_items',
+        'olist_order_reviews'
+    ];
 
-export const getReviews = (): Review[] =>
-  reviewsData as Review[];
+    const snapshots = await Promise.all(
+        paths.map(path => get(ref(database, path)))
+    );
+
+    return {
+        orders: convertSnapshot<Order>(snapshots[0].val()),
+        customers: convertSnapshot<Customer>(snapshots[1].val()),
+        products: convertSnapshot<Product>(snapshots[2].val()),
+        payments: convertSnapshot<Payment>(snapshots[3].val()),
+        orderItems: convertSnapshot<OrderItem>(snapshots[4].val()),
+        reviews: convertSnapshot<Review>(snapshots[5].val())
+    };
+}

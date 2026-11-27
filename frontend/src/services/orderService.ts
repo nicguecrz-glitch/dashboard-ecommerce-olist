@@ -1,8 +1,7 @@
 
-import { getOrders } from './dataService';
 import type { Order } from '../types';
 
-export function getOrderSummary(orders: Order[] = getOrders()) {
+export function getOrderSummary(orders: Order[]) {
   return {
     totalOrders: orders.length,
     deliveredOrders: orders.filter(
@@ -15,7 +14,7 @@ export function getOrderSummary(orders: Order[] = getOrders()) {
 }
 
 export function getAverageDeliveryDays(
-  orders: Order[] = getOrders()
+  orders: Order[]
 ): number | null {
   const millisecondsPerDay = 24 * 60 * 60 * 1000;
   let totalDays = 0;
@@ -40,7 +39,7 @@ export function getAverageDeliveryDays(
   return deliveryCount > 0 ? totalDays / deliveryCount : null;
 }
 
-export function getOrdersByStatus(orders: Order[] = getOrders()) {
+export function getOrdersByStatus(orders: Order[]) {
   const countsByStatus = new Map<string, number>();
 
   for (const order of orders) {

@@ -6,7 +6,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
-import { getCustomers, getProducts } from '../services/dataService';
+import type { Customer, Product } from '../types';
+
 
 const filterFont = '"DM Sans Variable", system-ui, sans-serif';
 
@@ -34,6 +35,9 @@ interface DashboardFiltersProps {
     setState: (value: string) => void;
     category: string;
     setCategory: (value: string) => void;
+
+    customers: Customer[];
+    products: Product[];
 }
 
 export default function DashboardFilters({
@@ -44,22 +48,23 @@ export default function DashboardFilters({
     state,
     setState,
     category,
-    setCategory
+    setCategory,
+    customers,
+    products
 }: DashboardFiltersProps) {
 
     const categories = Array.from(
         new Set(
-            getProducts()
-                .map((product) => product.product_category_name)
+            products
+                .map(product => product.product_category_name)
                 .filter((category): category is string => Boolean(category))
         )
     ).sort();
 
-
     const states = Array.from(
         new Set(
-            getCustomers()
-                .map((customer) => customer.customer_state)
+            customers
+                .map(customer => customer.customer_state)
                 .filter((state): state is string => Boolean(state))
         )
     ).sort();

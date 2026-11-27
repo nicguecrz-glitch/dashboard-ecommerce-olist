@@ -1,9 +1,8 @@
 
-import { getReviews } from './dataService';
 import type { Review } from '../types';
 
 export function getAverageReviewScore(
-  reviews: Review[] = getReviews()
+  reviews: Review[]
 ): number | null {
   const scores = reviews
     .map((review) => review.review_score)

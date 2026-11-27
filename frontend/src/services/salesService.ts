@@ -1,14 +1,9 @@
 
-import {
-  getOrderItems,
-  getOrders
-} from './dataService';
-
 import type { Order, OrderItem } from '../types';
 
 export function getProductRevenue(
-  orders: Order[] = getOrders(),
-  items: OrderItem[] = getOrderItems()
+  orders: Order[],
+  items: OrderItem[]
 ): number {
   const deliveredOrderIds = new Set(
     orders
