@@ -1,5 +1,5 @@
 import {
-    Button, Container, Grid, Paper, Table, TableBody, TableCell,
+    Container, Grid, Paper, Table, TableBody, TableCell,
     TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography
 } from '@mui/material';
 import type { Dayjs } from 'dayjs';
@@ -12,8 +12,8 @@ import Header from './components/Header';
 import './Dashboard.css';
 
 import { useEffect, useState } from 'react';
-import { getDashboardData } from './services/dataService';
 import type { DashboardData } from './services/dataService';
+import { getDashboardData } from './services/dataService';
 
 import {
     getAverageDeliveryDays,
@@ -137,7 +137,6 @@ export default function Dashboard() {
             .map((item) => item.order_id)
     );
 
-
     // 3. Obtener los pedidos que cumplen todos los filtros
     const filteredOrders = category === 'all'
         ? baseFilteredOrders
@@ -184,7 +183,6 @@ export default function Dashboard() {
     }
 
     const averageDelivery = getAverageDeliveryDays(filteredOrders);
-
     const averageReview = getAverageReviewScore(filteredReviews);
 
     const deliveredOrderIds = new Set(
@@ -208,7 +206,6 @@ export default function Dashboard() {
         revenueByCategory,
         ([categoryName, revenue]) => ({ categoryName, revenue })
     ).sort((a, b) => b.revenue - a.revenue);
-
 
     const purchaseMonthByOrder = new Map(
         filteredOrders
@@ -298,8 +295,6 @@ export default function Dashboard() {
         currency: 'BRL',
     });
 
-    const [showFirebaseOrders, setShowFirebaseOrders] = useState(false);
-
     // Los retornos condicionales van después de declarar todos los hooks.
     if (loading) {
         return <Typography sx={{ p: 3 }}>Cargando información del dashboard...</Typography>;
@@ -311,7 +306,6 @@ export default function Dashboard() {
 
     return (
         <>
-            {/* Header */}
             <Header />
 
             <Container component="main" maxWidth="lg" className="olist-dashboard" sx={{ py: 3 }}>
@@ -319,7 +313,6 @@ export default function Dashboard() {
                     Filtros
                 </Typography>
 
-                {/* Filtros del dashboard */}
                 <Paper className="olist-card" variant="outlined" sx={{ p: 2, mb: 3 }}>
                     <DashboardFilters
                         startDate={startDate}
@@ -335,10 +328,7 @@ export default function Dashboard() {
                     />
                 </Paper>
 
-                {/* Tarjetas KPI */}
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-
-                    {/* Pedidos */}
                     <Grid size={{ xs: 6, md: 3 }}>
                         <Paper className="olist-card olist-kpi" elevation={0} sx={{ p: 2 }}>
                             <Typography>Pedidos</Typography>
@@ -348,7 +338,6 @@ export default function Dashboard() {
                         </Paper>
                     </Grid>
 
-                    {/* Ingresos */}
                     <Grid size={{ xs: 6, md: 3 }}>
                         <Paper className="olist-card olist-kpi olist-kpi-revenue" elevation={0} sx={{ p: 2 }}>
                             <Typography>Ingresos</Typography>
@@ -361,7 +350,6 @@ export default function Dashboard() {
                         </Paper>
                     </Grid>
 
-                    {/* Tiempo promedio */}
                     <Grid size={{ xs: 6, md: 3 }}>
                         <Paper className="olist-card olist-kpi" elevation={0} sx={{ p: 2 }}>
                             <Typography>Tiempo promedio</Typography>
@@ -373,7 +361,6 @@ export default function Dashboard() {
                         </Paper>
                     </Grid>
 
-                    {/* Calificación */}
                     <Grid size={{ xs: 6, md: 3 }}>
                         <Paper className="olist-card olist-kpi" elevation={0} sx={{ p: 2 }}>
                             <Typography>Calificación</Typography>
@@ -384,10 +371,8 @@ export default function Dashboard() {
                             </Typography>
                         </Paper>
                     </Grid>
-
                 </Grid>
 
-                {/* Espacios para gráficos */}
                 <Grid container spacing={2}>
                     {[
                         'Ingresos por categoría',
@@ -411,7 +396,8 @@ export default function Dashboard() {
                                 >
                                     {title}
                                 </Typography>
-                                {title === 'Detalle de pedidos' && !showFirebaseOrders && (
+
+                                {title === 'Detalle de pedidos' && (
                                     recentOrders.length === 0 ? (
                                         <Typography sx={{ mt: 2 }}>
                                             Sin pedidos para estos filtros
@@ -489,8 +475,6 @@ export default function Dashboard() {
                                     )
                                 )}
 
-
-
                                 {title === 'Ingresos por categoría' && (
                                     categoryChartData.length > 0 ? (
                                         <ResponsiveContainer width="100%" height={240}>
@@ -525,6 +509,7 @@ export default function Dashboard() {
                                         <Typography sx={{ mt: 2 }}>Sin ingresos para estos filtros</Typography>
                                     )
                                 )}
+
                                 {title === 'Distribución de pedidos por estado' && (
                                     statusChartData.length > 0 ? (
                                         <ResponsiveContainer width="100%" height={240}>
